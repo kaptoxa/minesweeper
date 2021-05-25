@@ -1,8 +1,8 @@
 import numpy as np
 from random import randint
 
-n = 5  # size of field to play
-m = 3  # count of bombs
+n = 8  # size of field to play
+m = 10  # count of bombs
 
 
 class Sapper():
@@ -28,8 +28,13 @@ class Sapper():
         for i, j in bombs:
             field[i, j] = 10
 
+        np.where(field == 0, 9, field)
+
         self.field, self.opened, self.bombs = field, opened, bombs
-        self.turn(x, y)
+#        self.turn(x, y)
+
+    def get(self):
+        return self.field * self.opened
 
     def show(self):
         pics = ' 123456789x?F'
@@ -112,41 +117,41 @@ for i in range(n):
     print('[ ]' * n)
 
 
-def parse_turn():
-    correct = False
-    while not correct:
-        line = input().split()
+# def parse_turn():
+#     correct = False
+#     while not correct:
+#         line = input().split()
+#
+#         if len(line) == 3:
+#             c, x, y = line
+#             if x.isdigit() and y.isdigit():
+#                 x, y = int(x) - 1, int(y) - 1
+#                 correct = (0 <= x < n and 0 <= y < n)
+#
+#         if not correct:
+#             print('Not correct turn! Please, try one more time:')
+#
+#     return c, x, y
 
-        if len(line) == 3:
-            c, x, y = line
-            if x.isdigit() and y.isdigit():
-                x, y = int(x) - 1, int(y) - 1
-                correct = (0 <= x < n and 0 <= y < n)
 
-        if not correct:
-            print('Not correct turn! Please, try one more time:')
+# c, y, x = parse_turn()
+game = Sapper(n, m)
 
-    return c, x, y
-
-
-c, y, x = parse_turn()
-game = Sapper(n, m, x, y)
-
-while True:
-    game.show()
-
-    c, y, x = parse_turn()
-    if c == 't':
-        if game.turn(x, y) == 2:
-            game.show()
-            print('Game over!')
-            break
-
-    if c == 'f':
-        game.flag(x, y)
-    if c == 'q':
-        game.mark(x, y)
-
-    if game.fin():
-        print('You are winner!')
-        break
+# while True:
+#     game.show()
+#
+#     c, y, x = parse_turn()
+#     if c == 't':
+#         if game.turn(x, y) == 2:
+#             game.show()
+#             print('Game over!')
+#             break
+#
+#     if c == 'f':
+#         game.flag(x, y)
+#     if c == 'q':
+#         game.mark(x, y)
+#
+#     if game.fin():
+#         print('You are winner!')
+#         break
