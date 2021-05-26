@@ -5,7 +5,6 @@ import sapper
 
 images = {}
 def load_images():
-
     names = os.listdir('pics')
     for name in names:
         filename = os.path.join('pics', name)
@@ -22,8 +21,7 @@ class Tile(pygame.sprite.Sprite):
     def __init__(self, row, col, value):
         super().__init__(tiles)
         self.image = images[str(value)]
-#        self.add(tiles)
-        self.rect = self.image.get_rect().move(18 + 30 * col, 97 + 30 * row)
+        self.rect = self.image.get_rect().move(18 + 29 * col, 97 + 29 * row)
 
 
 if __name__ == '__main__':

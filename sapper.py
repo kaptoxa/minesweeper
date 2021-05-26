@@ -5,6 +5,13 @@ n = 9  # size of field to play
 m = 10  # count of bombs
 
 
+def on_field(x, y):
+    return x > -1 and x < n and y > -1 and y < n
+
+DELTAS = [(dx, dy) for dy in range(-1, 2) for dx in range(-1, 2)]
+del DELTAS[4]
+
+
 class Sapper():
 
     def __init__(self, n, m, x=0, y=0):
@@ -42,18 +49,10 @@ class Sapper():
             self.__open_zeroes(i, j)
 
     def __open_zeroes(self, x, y):
-        deltas = [(dx, dy) for dy in range(-1, 2) for dx in range(-1, 2)]
-        del deltas[4]
-        def on_field(x, y):
-            return x > -1 and x < n and y > -1 and y < n
-        for dx, dy in deltas:
+        for dx, dy in DELTAS:
             i, j = x + dx, y + dy
             if on_field(i, j):
                 self.__next_zeroes(i, j)
-
-        for dx, dy in deltas:
-            i, j = x + dx, y + dy
-            if on_field(i, j):
                 if self.field[i, j] != 9:
                     self.opened[i, j] = 1
 
@@ -87,51 +86,4 @@ class Sapper():
         return count == n * n - m
 
 
-rules = """
-t x y - to open (x, y) cell
-f x y - to flag (x, y) cell
-q x y - to set ? in (x, y) cell
-"""
-print(rules)
-for i in range(n):
-    print('[ ]' * n)
-
-
-# def parse_turn():
-#     correct = False
-#     while not correct:
-#         line = input().split()
-#
-#         if len(line) == 3:
-#             c, x, y = line
-#             if x.isdigit() and y.isdigit():
-#                 x, y = int(x) - 1, int(y) - 1
-#                 correct = (0 <= x < n and 0 <= y < n)
-#
-#         if not correct:
-#             print('Not correct turn! Please, try one more time:')
-#
-#     return c, x, y
-
-
-# c, y, x = parse_turn()
 game = Sapper(n, m)
-
-# while True:
-#     game.show()
-#
-#     c, y, x = parse_turn()
-#     if c == 't':
-#         if game.turn(x, y) == 2:
-#             game.show()
-#             print('Game over!')
-#             break
-#
-#     if c == 'f':
-#         game.flag(x, y)
-#     if c == 'q':
-#         game.mark(x, y)
-#
-#     if game.fin():
-#         print('You are winner!')
-#         break
