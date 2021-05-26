@@ -5,23 +5,25 @@ import sapper
 
 images = {}
 def load_images():
-    names = ['background', '0']
+
+    names = os.listdir('pics')
     for name in names:
-        filename = os.path.join('pics', name + '.png')
+        filename = os.path.join('pics', name)
         if not os.path.isfile(filename):
             print(f"Нет файла {filename}!")
             return
         image = pygame.image.load(filename)
         print(f'{filename} loaded.')
-        images[name] = image
+        key, *other = name.split('.')
+        images[key] = image
 
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, row, col, value):
         super().__init__(tiles)
-        self.image = images['0']
+        self.image = images[str(value)]
 #        self.add(tiles)
-        self.rect = self.image.get_rect().move(30 * col, 30 * row)
+        self.rect = self.image.get_rect().move(18 + 30 * col, 97 + 30 * row)
 
 
 if __name__ == '__main__':
@@ -49,12 +51,15 @@ if __name__ == '__main__':
                     j = y // 30
                     print(x, y, ':', i, j)
 
-                    sapper.game.turn(i, j)
+                    sapper.game.turn(j, i)
+                    tiles.empty()
                     field = sapper.game.get()
                     for row in range(sapper.n):
                         for col in range(sapper.n):
                             if field[row, col]:
                                 Tile(row, col, field[row, col])
+
+#                    sapper.game.show()
 
         if fin:
             break

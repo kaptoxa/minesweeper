@@ -1,7 +1,7 @@
 import numpy as np
 from random import randint
 
-n = 8  # size of field to play
+n = 9  # size of field to play
 m = 10  # count of bombs
 
 
@@ -11,7 +11,6 @@ class Sapper():
         """ init data to keep info about bombs and numbers,
             and what fields are opened. x, y - lucky first turn """
         field = np.zeros((n, n), dtype=np.int8)
-        opened = np.copy(field)
         bombs = set()
 
         while len(bombs) < m:
@@ -28,54 +27,35 @@ class Sapper():
         for i, j in bombs:
             field[i, j] = 10
 
-        np.where(field == 0, 9, field)
+        field = np.where(field == 0, 9, field)
+        print(field)
 
+        opened = np.zeros((n, n), dtype=np.int8)
         self.field, self.opened, self.bombs = field, opened, bombs
-#        self.turn(x, y)
 
     def get(self):
         return self.field * self.opened
 
-    def show(self):
-        pics = ' 123456789x?F'
-        for i in range(n):
-            for j in range(n):
-                c = self.field[i, j]
-                if self.opened[i][j] == 1:
-                    print('[' + pics[c] + ']' if c else '   ', end='')
-                elif self.opened[i][j] > 1:
-                    c = self.opened[i, j]
-                    print('[' + pics[c] + ']', end='')
-                else:
-                    print('[' + pics[c] + ']' if c > 10 else '[ ]', end='')
-            print()
-
     def __next_zeroes(self, i, j):
-        if not self.field[i, j] and not self.opened[i, j]:
+        if self.field[i, j] == 9 and not self.opened[i, j]:
             self.opened[i, j] = 1
             self.__open_zeroes(i, j)
 
     def __open_zeroes(self, x, y):
-        for d in [-1, 1]:
-            i, j = x + d, y
-            if i in range(0, n):
+        deltas = [(dx, dy) for dy in range(-1, 2) for dx in range(-1, 2)]
+        del deltas[4]
+        def on_field(x, y):
+            return x > -1 and x < n and y > -1 and y < n
+        for dx, dy in deltas:
+            i, j = x + dx, y + dy
+            if on_field(i, j):
                 self.__next_zeroes(i, j)
 
-        for d in [-1, 1]:
-            i, j = x, y + d
-            if j in range(0, n):
-                self.__next_zeroes(i, j)
-
-        xl, xr = [x - 1, x + 2] if x > 0 else [0, x + 2]
-        xr = n if xr > n else xr
-        yl, yr = [y - 1, y + 2] if y > 0 else [0, y + 2]
-        if yr > n:
-            yr = n
-        for i in range(xl, xr):
-            for j in range(yl, yr):
-                if self.field[i, j] and not (i, j) == (x, y):
+        for dx, dy in deltas:
+            i, j = x + dx, y + dy
+            if on_field(i, j):
+                if self.field[i, j] != 9:
                     self.opened[i, j] = 1
-        # self.opened[xl: xr, yl: yr] *= self.field[xl: xr, yl: yr]
 
     def turn(self, x, y):
         if self.opened[x, y] > 1:
@@ -87,7 +67,7 @@ class Sapper():
         if (x, y) in self.bombs:
             return 2
 
-        if not self.field[x, y]:
+        if self.field[x, y] == 9:
             self.__open_zeroes(x, y)
 
         return 0
