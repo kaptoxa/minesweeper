@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
 
     game = create_game()
-    status = Status(statuses)
+    status = Status(statuses, (126, 27))
     fin = False
     while not fin:
         for event in pygame.event.get():
@@ -52,7 +52,6 @@ if __name__ == '__main__':
                             status.lose()
                     if event.button == 3:
                         game.flag(j, i)
-
         if fin:
             break
 
@@ -66,16 +65,14 @@ if __name__ == '__main__':
             for col in range(n):
                 if mask[row, col]:
                     Tile(row, col, pics[row, col])
-        screen.blit(images['background'], (0, 0))
-        tiles.draw(screen)
-
         bombs_counter.update(game.remained())
-        bombs_counter.draw(screen)
-
         if not status.finished():
             secs_counter.update(status.duration())
-        secs_counter.draw(screen)
 
+        screen.blit(images['background'], (0, 0))
+        tiles.draw(screen)
+        bombs_counter.draw(screen)
+        secs_counter.draw(screen)
         statuses.draw(screen)
         pygame.display.flip()
         clock.tick(10)

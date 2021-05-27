@@ -14,4 +14,6 @@ class RedCounter(pygame.sprite.Group):
         for i in range(3):
             sprite = self.numbers[i]
             sprite.image = images[f"c{chars[i]}"]
-            sprite.rect = sprite.image.get_rect().move(self.x + i * 24, self.y)
+            sprite.rect = sprite.image.get_rect()
+            sprite.rect.x = self.x + i * 24
+            sprite.rect.y = self.y

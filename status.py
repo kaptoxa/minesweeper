@@ -4,10 +4,11 @@ import time
 
 
 class Status(pygame.sprite.Sprite):
-    def __init__(self, group):
+    def __init__(self, group, offset):
         super().__init__(group)
         self.start()
-        self.rect = self.image.get_rect().move(126, 27)
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = offset
 
     def win(self):
         self.image = images['win']
