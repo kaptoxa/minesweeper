@@ -1,18 +1,10 @@
 from pics import images
-from status import Status
-from sapper import on_field, create_game, n
-from counter import RedCounter
+from sapper import on_field, create_game
+import status
+import counter
+import field
 
 import pygame
-
-
-class Tile(pygame.sprite.Sprite):
-    def __init__(self, row, col, value):
-        super().__init__(tiles)
-        self.image = images[str(value)]
-        self.rect = self.image.get_rect()
-        self.rect.x = 18 + 29 * col
-        self.rect.y = 97 + 29 * row
 
 
 if __name__ == '__main__':
@@ -20,16 +12,18 @@ if __name__ == '__main__':
     pygame.display.set_caption('Minesweeper')
     screen = pygame.display.set_mode((298, 377))
     clock = pygame.time.Clock()
-
-    tiles = pygame.sprite.Group()
-    statuses = pygame.sprite.Group()
-    bombs_counter = RedCounter((26, 27))
-    bombs_counter.update(10)
-    secs_counter = RedCounter((200, 27))
-
-
     game = create_game()
-    status = Status(statuses, (126, 27))
+
+    # prepare sprites groups
+    field = field.Field((18, 98))
+    bombs_counter = counter.RedCounter((26, 27))
+    bombs_counter.update(10)
+    secs_counter = counter.RedCounter((200, 27))
+    statuses = pygame.sprite.Group()
+    status = status.Status(statuses, (126, 27))
+
+
+    # game loop
     fin = False
     while not fin:
         for event in pygame.event.get():
@@ -58,19 +52,15 @@ if __name__ == '__main__':
         if game.solved():
             status.win()
 
-        tiles.empty()
-        pics = game.get_pics()
-        mask = game.get_mask()
-        for row in range(n):
-            for col in range(n):
-                if mask[row, col]:
-                    Tile(row, col, pics[row, col])
+        # update states of entities
+        field.update(game)
         bombs_counter.update(game.remained())
         if not status.finished():
             secs_counter.update(status.duration())
 
+        # draw field, counters and status
         screen.blit(images['background'], (0, 0))
-        tiles.draw(screen)
+        field.draw(screen)
         bombs_counter.draw(screen)
         secs_counter.draw(screen)
         statuses.draw(screen)

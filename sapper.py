@@ -1,9 +1,9 @@
 import numpy as np
 from random import randint
 
+
 n = 9  # size of field to play
 m = 10  # count of bombs
-
 
 def on_field(x, y):
     return x > -1 and x < n and y > -1 and y < n
@@ -43,6 +43,9 @@ class Sapper():
 
     def get_mask(self):
         return self.opened > 0
+
+    def get_size(self):
+        return self.field.shape
 
     def __next_zeroes(self, i, j):
         if not self.field[i, j] and not self.opened[i, j]:
@@ -92,6 +95,7 @@ class Sapper():
             return True
         else:
             return False
+
 
 def create_game():
     return Sapper(n, m)
