@@ -2,7 +2,6 @@ from pics import images
 from status import Status
 from sapper import on_field, create_game, n
 from counter import RedCounter
-from time import time
 
 import pygame
 
@@ -11,7 +10,9 @@ class Tile(pygame.sprite.Sprite):
     def __init__(self, row, col, value):
         super().__init__(tiles)
         self.image = images[str(value)]
-        self.rect = self.image.get_rect().move(18 + 29 * col, 97 + 29 * row)
+        self.rect = self.image.get_rect()
+        self.rect.x = 18 + 29 * col
+        self.rect.y = 97 + 29 * row
 
 
 if __name__ == '__main__':
@@ -25,7 +26,6 @@ if __name__ == '__main__':
     bombs_counter = RedCounter((26, 27))
     bombs_counter.update(10)
     secs_counter = RedCounter((200, 27))
-    start_time = time()
 
 
     game = create_game()
@@ -72,11 +72,10 @@ if __name__ == '__main__':
         bombs_counter.update(game.remained())
         bombs_counter.draw(screen)
 
-        secs = time() - start_time
-        secs_counter.update(int(secs))
+        if not status.finished():
+            secs_counter.update(status.duration())
         secs_counter.draw(screen)
 
         statuses.draw(screen)
         pygame.display.flip()
         clock.tick(10)
-        print(clock.get_rawtime())
