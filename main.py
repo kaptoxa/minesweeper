@@ -1,20 +1,10 @@
-import os
+from pics import images
+from status import Status
+from sapper import on_field, create_game, n
+from counter import RedCounter
+from time import time
+
 import pygame
-import sapper
-
-
-images = {}
-def load_images():
-    names = os.listdir('pics')
-    for name in names:
-        filename = os.path.join('pics', name)
-        if not os.path.isfile(filename):
-            print(f"Нет файла {filename}!")
-            return
-        image = pygame.image.load(filename)
-        print(f'{filename} loaded.')
-        key, *other = name.split('.')
-        images[key] = image
 
 
 class Tile(pygame.sprite.Sprite):
@@ -29,10 +19,17 @@ if __name__ == '__main__':
     pygame.display.set_caption('Minesweeper')
     screen = pygame.display.set_mode((298, 377))
     clock = pygame.time.Clock()
+
     tiles = pygame.sprite.Group()
+    statuses = pygame.sprite.Group()
+    bombs_counter = RedCounter((26, 27))
+    bombs_counter.update(10)
+    secs_counter = RedCounter((200, 27))
+    start_time = time()
 
-    load_images()
 
+    game = create_game()
+    status = Status(statuses)
     fin = False
     while not fin:
         for event in pygame.event.get():
@@ -40,29 +37,46 @@ if __name__ == '__main__':
                 pygame.quit()
                 fin = True
                 break
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONUP:
                 x, y = event.pos
-                if event.button == 1:
-                    x -= 18
-                    y -= 98
-                    i = x // 30
-                    j = y // 30
-                    print(x, y, ':', i, j)
+                if x > 126 and x < 173 and y > 26 and y < 73:
+                    if status.finished():
+                        status.start()
+                        game = create_game()
 
-                    sapper.game.turn(j, i)
-                    tiles.empty()
-                    field = sapper.game.get()
-                    for row in range(sapper.n):
-                        for col in range(sapper.n):
-                            if field[row, col]:
-                                Tile(row, col, field[row, col])
-
-#                    sapper.game.show()
+                i = (x - 18) // 30
+                j = (y - 98) // 30
+                if on_field(i, j):
+                    if event.button == 1:
+                        if game.turn(j, i) == 2:
+                            status.lose()
+                    if event.button == 3:
+                        game.flag(j, i)
 
         if fin:
             break
+
+        if game.solved():
+            status.win()
+
+        tiles.empty()
+        pics = game.get_pics()
+        mask = game.get_mask()
+        for row in range(n):
+            for col in range(n):
+                if mask[row, col]:
+                    Tile(row, col, pics[row, col])
         screen.blit(images['background'], (0, 0))
         tiles.draw(screen)
+
+        bombs_counter.update(game.remained())
+        bombs_counter.draw(screen)
+
+        secs = time() - start_time
+        secs_counter.update(int(secs))
+        secs_counter.draw(screen)
+
+        statuses.draw(screen)
         pygame.display.flip()
         clock.tick(10)
-
+        print(clock.get_rawtime())

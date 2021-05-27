@@ -34,17 +34,18 @@ class Sapper():
         for i, j in bombs:
             field[i, j] = 10
 
-        field = np.where(field == 0, 9, field)
         print(field)
-
         opened = np.zeros((n, n), dtype=np.int8)
         self.field, self.opened, self.bombs = field, opened, bombs
 
-    def get(self):
-        return self.field * self.opened
+    def get_pics(self):
+        return np.where(self.opened == 1, self.field, self.opened)
+
+    def get_mask(self):
+        return self.opened > 0
 
     def __next_zeroes(self, i, j):
-        if self.field[i, j] == 9 and not self.opened[i, j]:
+        if not self.field[i, j] and not self.opened[i, j]:
             self.opened[i, j] = 1
             self.__open_zeroes(i, j)
 
@@ -53,7 +54,7 @@ class Sapper():
             i, j = x + dx, y + dy
             if on_field(i, j):
                 self.__next_zeroes(i, j)
-                if self.field[i, j] != 9:
+                if self.field[i, j]:
                     self.opened[i, j] = 1
 
     def turn(self, x, y):
@@ -66,7 +67,7 @@ class Sapper():
         if (x, y) in self.bombs:
             return 2
 
-        if self.field[x, y] == 9:
+        if not self.field[x, y]:
             self.__open_zeroes(x, y)
 
         return 0
@@ -79,11 +80,18 @@ class Sapper():
         if not self.opened[x, y]:
             self.opened[x, y] = 11
 
-    def fin(self):
+    def remained(self):
+        return m - sum(x == 12 for x in self.opened.flat)
+
+    def solved(self):
         easy = self.opened.copy()
         easy[easy > 10] = 0
         count = np.sum(easy)
-        return count == n * n - m
+        if count == n * n - m:
+            self.opened = np.where(self.field == 10, 12, self.opened)
+            return True
+        else:
+            return False
 
-
-game = Sapper(n, m)
+def create_game():
+    return Sapper(n, m)
