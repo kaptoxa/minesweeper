@@ -75,13 +75,30 @@ class Sapper():
 
         return 0
 
-    def flag(self, x, y):
-        if not self.opened[x, y]:
-            self.opened[x, y] = 12
+    def auto_turn(self, x, y):
+        cleared = True
+        for dx, dy in DELTAS:
+            i, j = x + dx, y + dy
+            if on_field(i, j):
+                if self.field[i, j] == 10 and self.opened[i, j] != 12:
+                    cleared = False
+                    break
+        if cleared:
+            for dx, dy in DELTAS:
+                i, j = x + dx, y + dy
+                if on_field(i, j):
+                    if self.field[i, j] == 10:
+                        self.opened[i, j] = 12
+                    elif self.field[i, j]:
+                        self.opened[i, j] = 1
+                    else:
+                        self.__open_zeroes(i, j)
 
-    def mark(self, x, y):
-        if not self.opened[x, y]:
-            self.opened[x, y] = 11
+    def flag(self, x, y):
+        if self.opened[x, y] == 12:
+            self.opened[x, y] = 0
+        elif not self.opened[x, y]:
+            self.opened[x, y] = 12
 
     def remained(self):
         return m - sum(x == 12 for x in self.opened.flat)

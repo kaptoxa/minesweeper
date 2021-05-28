@@ -25,12 +25,15 @@ if __name__ == '__main__':
 
     # game loop
     fin = False
+    clamped = set()
     while not fin:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 fin = True
                 break
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                clamped.add(event.button)
             if event.type == pygame.MOUSEBUTTONUP:
                 x, y = event.pos
                 if x > 126 and x < 173 and y > 26 and y < 73:
@@ -41,11 +44,14 @@ if __name__ == '__main__':
                 i = (x - 18) // 30
                 j = (y - 98) // 30
                 if on_field(i, j):
-                    if event.button == 1:
+                    if clamped == {1, 3}:
+                        game.auto_turn(j, i)
+                    if clamped == {1}:
                         if game.turn(j, i) == 2:
                             status.lose()
-                    if event.button == 3:
+                    if clamped == {3}:
                         game.flag(j, i)
+                clamped.clear()
         if fin:
             break
 
